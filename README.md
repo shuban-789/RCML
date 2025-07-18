@@ -1,3 +1,3 @@
-# Rudimentary Calculus Library
+# RCL 
 
-Written for Rust
+Written for Rust and C/C++
