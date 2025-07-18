@@ -1,8 +1,8 @@
+use core::f32::NAN;
+
 #[no_mangle]
-pub extern "C" fn verify_limit<F>(c: f32, l: f32, f: F) -> bool
-where
-    F: Fn(f32) -> f32,
-{
+pub extern "C" fn verify_limit(c: f32, l: f32, f: extern "C" fn(f32) -> f32) -> bool
+{   
     let epsilon = 1e-4;
     let delta_start = 1e-6;
 
@@ -27,10 +27,7 @@ where
 }
 
 #[no_mangle]
-pub extern "C" fn limit<F>(c: f32, f: F) -> Option<f32>
-where
-    F: Fn(f32) -> f32,
-{
+pub extern "C" fn limit(c: f32, f: extern "C" fn(f32) -> f32) -> f32 {
     let mut total = 0.0;
     let mut count = 0;
     let delta = 1e-6;
@@ -55,22 +52,20 @@ where
     }
 
     if count == 0 {
-        return None;
+        return NAN;
     }
 
     let avg = total / count as f32;
 
     if verify_limit(c, avg, f) {
-        return Some(avg);
+        return avg;
     } else {
-        return None;
+        return NAN;
     }
 }
 
 #[no_mangle]
-pub extern "C" fn derive<F>(c: f32, f: F) -> f32
-where
-    F: Fn(f32) -> f32,
+pub extern "C" fn derive(c: f32, f: extern "C" fn(f32) -> f32) -> f32
 {
     let delta = 1e-6;
     let left = f(c - delta);
@@ -84,9 +79,7 @@ where
 }
 
 #[no_mangle]
-pub extern "C" fn integrate<F>(a: f32, b: f32, f: F) -> f32
-where
-    F: Fn(f32) -> f32,
+pub extern "C" fn integrate(a: f32, b: f32, f: extern "C" fn(f32) -> f32) -> f32
 {
     let n = 1000000;
     let h = (b - a) / (n as f32);
@@ -103,9 +96,7 @@ where
 }
 
 #[no_mangle]
-pub extern "C" fn euler<F>(x_init: f32, y_init: f32, x_final: f32, step: f32, d: F) -> f32
-where
-    F: Fn(f32, f32) -> f32,
+pub extern "C" fn euler(x_init: f32, y_init: f32, x_final: f32, step: f32, d: extern "C" fn(f32, f32) -> f32) -> f32
 {
     let mut x_coord = x_init;
     let mut y_coord = y_init;
