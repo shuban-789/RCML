@@ -28,55 +28,50 @@ pub extern "C" fn verify_limit(c: f32, l: f32, f: extern "C" fn(f32) -> f32) -> 
 
 #[no_mangle]
 pub extern "C" fn limit(c: f32, f: extern "C" fn(f32) -> f32) -> f32 {
-    let mut total = 0.0;
-    let mut count = 0;
-    let delta = 1e-6;
+    let mut h = 1e-2;
+    let mut prev_r = 0.0;
+    let mut curr_r = 0.0;
+    let tolerance = 1e-6;
 
-    for i in 1..100 {
-        let h = delta * (i as f32);
-        let left = c - h;
-        let right = c + h;
+    loop {
+        let l1 = (f(c + h) + f(c - h)) / 2.0;
+        let l2 = (f(c + h / 2.0) + f(c - h / 2.0)) / 2.0;
 
-        let fl = f(left);
-        let fr = f(right);
+        curr_r = (4.0 * l2 - l1) / 3.0;
 
-        if fl.is_finite() {
-            total += fl;
-            count += 1;
+        if (curr_r - prev_r).abs() < tolerance || h < 1e-10 {
+            break;
         }
 
-        if fr.is_finite() {
-            total += fr;
-            count += 1;
-        }
+        prev_r = curr_r;
+        h *= 0.5;
     }
 
-    if count == 0 {
-        return NAN;
-    }
-
-    let avg = total / count as f32;
-
-    if verify_limit(c, avg, f) {
-        return avg;
+    if verify_limit(c, curr_r, f) {
+        curr_r
     } else {
-        return NAN;
+        f32::NAN
     }
 }
 
 #[no_mangle]
-pub extern "C" fn derive(c: f32, f: extern "C" fn(f32) -> f32) -> f32
-{
-    let delta = 1e-6;
-    let left = f(c - delta);
-    let right = f(c + delta);
+pub extern "C" fn derive(c: f32, f: extern "C" fn(f32) -> f32) -> f32 {
+    let h1 = 1e-3;
+    let h2 = h1 / 2.0;
 
-    if left.is_finite() && right.is_finite() {
-        return (right - left) / (2.0 * delta);
+    let d1 = (f(c + h1) - f(c - h1)) / (2.0 * h1);
+    let d2 = (f(c + h2) - f(c - h2)) / (2.0 * h2);
+
+    let richardson = (4.0 * d2 - d1) / 3.0;
+
+    if richardson.is_finite() {
+        richardson
     } else {
-        panic!("Function is not finite around point {}", c);
+        f32::NAN
     }
 }
+
+
 
 #[no_mangle]
 pub extern "C" fn integrate(a: f32, b: f32, f: extern "C" fn(f32) -> f32) -> f32
