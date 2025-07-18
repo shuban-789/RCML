@@ -1,4 +1,4 @@
-# RCL 
+# rcl
 
 Written for Rust and C/C++
 
