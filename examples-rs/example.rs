@@ -26,7 +26,7 @@ fn main() {
         println!("Euler approx y(1): {}", y_final);
 
         let l = limit(0.0, square);
-        println!("Limit of x² as x→0: {}", l);
+        println!("Limit of x^2 as x -> 0: {}", l);
 
         let is_l = verify_limit(0.0, l, square);
         println!("Is limit verified? {}", is_l);

@@ -1,5 +1,23 @@
 use core::f32::NAN;
 
+type PathFn = extern "C" fn(f32, *mut f32);
+
+#[no_mangle]
+pub extern "C" fn path_x(t: f32, out: *mut f32) {
+    unsafe {
+        *out.offset(0) = t;
+        *out.offset(1) = 0.0;
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn path_diag(t: f32, out: *mut f32) {
+    unsafe {
+        *out.offset(0) = t;
+        *out.offset(1) = t;
+    }
+}
+
 #[no_mangle]
 pub extern "C" fn verify_limit(c: f32, l: f32, f: extern "C" fn(f32) -> f32) -> bool
 {   
@@ -55,6 +73,38 @@ pub extern "C" fn limit(c: f32, f: extern "C" fn(f32) -> f32) -> f32 {
 }
 
 #[no_mangle]
+pub extern "C" fn limit2(
+    f: extern "C" fn(f32, f32) -> f32, px: f32, py: f32, paths: *const extern "C" fn(f32, *mut f32), num_paths: usize,) -> f32 {
+    let mut limits = Vec::new();
+    for i in 0..num_paths {
+        let path = unsafe { *paths.add(i) };
+        let mut t = 1e-3f32;
+        let mut prev = f32::NAN;
+        let tolerance = 1e-5f32;
+
+        loop {
+            let mut coords = [0.0f32, 0.0f32];
+            path(t, coords.as_mut_ptr());
+            let curr = f(px + coords[0], py + coords[1]);
+            if (curr - prev).abs() < tolerance || t < 1e-10 {
+                break;
+            }
+            prev = curr;
+            t *= 0.5;
+        }
+        limits.push(prev);
+    }
+
+    let epsilon = 1e-4;
+    for i in 1..limits.len() {
+        if (limits[i] - limits[0]).abs() > epsilon {
+            return f32::NAN;
+        }
+    }
+    limits[0]
+}
+
+#[no_mangle]
 pub extern "C" fn derive(c: f32, f: extern "C" fn(f32) -> f32) -> f32 {
     let h1 = 1e-3;
     let h2 = h1 / 2.0;
@@ -104,4 +154,17 @@ pub extern "C" fn euler(x_init: f32, y_init: f32, x_final: f32, step: f32, d: ex
     }
 
     return y_coord;
+}
+
+#[no_mangle]
+pub extern "C" fn cross2(v1: [f32; 2], v2: [f32; 2]) -> f32 {
+    return v1[0]*v2[1] - v1[1]*v2[0];
+}
+
+#[no_mangle]
+pub extern "C" fn cross3(v1: [f32; 3], v2: [f32; 3]) -> [f32; 3] {
+    let i = v1[1]*v2[2] - v1[2]*v2[1];
+    let j = v1[2]*v2[0] - v1[0]*v2[2];
+    let k = v1[0]*v2[1] - v1[1]*v2[0];
+    return [i, j, k];
 }
