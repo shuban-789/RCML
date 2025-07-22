@@ -1,18 +1,6 @@
 #include <stdio.h>
 #include "rcl.h"
 
-extern void path_x(float t, float* out);
-extern void path_diag(float t, float* out);
-extern float limit2(
-    float (*f)(float, float),
-    float px,
-    float py,
-    void (**paths)(float, float*),
-    unsigned long num_paths
-);
-extern void cross2(const float* ptr1, const float* ptr2, size_t len, float* out);
-extern void cross3(const float* ptr1, const float* ptr2, size_t len, float* out);
-
 float square(float x) {
     return x * x;
 }
