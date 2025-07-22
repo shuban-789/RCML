@@ -17,10 +17,10 @@ extern "C" fn dy_dx(x: f32, y: f32) -> f32 {
 fn main() {
     unsafe {
         let d = derive(2.0, square);
-        println!("f'(2.0) = {}", d);
+        println!("f'(x) at x=2: {}", d);
 
         let i = integrate(0.0, 1.0, square);
-        println!("Integral of x² from 0 to 1: {}", i);
+        println!("Integral of x^2 from 0 to 1: {}", i);
 
         let y_final = euler(0.0, 1.0, 1.0, 0.01, dy_dx);
         println!("Euler approx y(1): {}", y_final);

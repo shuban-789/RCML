@@ -33,16 +33,28 @@ int main() {
     float limit = limit2(fxy, 0.0f, 0.0f, paths, 2);
     printf("Limit of fxy as (x,y) -> (0,0) = %f\n", limit);
 
-    float v1[] = {1.0, 2.0};
-    float v2[] = {3.0, 4.0};
+    float vd1[] = {1.0, 2.0};
+    float vd2[] = {3.0, 4.0};
+    float dot_prod_2;
+    dot(vd1, vd2, 2, &dot_prod_2);
+    printf("2D vector dot product is %f\n", dot_prod_2);
+
+    float vd3[] = {1.0, 2.0, 3.0};
+    float vd4[] = {4.0, 5.0, 6.0};
+    float dot_prod_3;
+    dot(vd3, vd4, 3, &dot_prod_3);
+    printf("3D vector dot product is %f\n", dot_prod_3);
+
+    float vc1[] = {1.0, 2.0};
+    float vc2[] = {3.0, 4.0};
     float cross_prod_2;
-    cross2(v1, v2, 2, &cross_prod_2);
+    cross2(vc1, vc2, 2, &cross_prod_2);
     printf("2D vector cross product is %f\n", cross_prod_2);
 
-    float v3[] = {1.0, 2.0, 3.0};
-    float v4[] = {4.0, 5.0, 6.0};
+    float vc3[] = {1.0, 2.0, 3.0};
+    float vc4[] = {4.0, 5.0, 6.0};
     float cross_prod_3[3];
-    cross3(v3, v4, 3, cross_prod_3);
+    cross3(vc3, vc4, 3, cross_prod_3);
     printf("3D vector cross product is <%f, %f, %f>\n", cross_prod_3[0], cross_prod_3[1], cross_prod_3[2]);
 
     return 0;

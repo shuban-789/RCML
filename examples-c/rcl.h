@@ -21,6 +21,7 @@ float limit2(
     void (**paths)(float, float*),
     unsigned long num_paths
 );
+void dot(const float* ptr1, const float* ptr2, size_t len, float* out);
 void cross2(const float* ptr1, const float* ptr2, size_t len, float* out);
 void cross3(const float* ptr1, const float* ptr2, size_t len, float* out);
 
