@@ -156,15 +156,35 @@ pub extern "C" fn euler(x_init: f32, y_init: f32, x_final: f32, step: f32, d: ex
     return y_coord;
 }
 
-#[no_mangle]
-pub extern "C" fn cross2(v1: [f32; 2], v2: [f32; 2]) -> f32 {
-    return v1[0]*v2[1] - v1[1]*v2[0];
+#[no_mangle] 
+pub extern "C" fn cross2(ptr1: *const f32, ptr2: *const f32, len: usize, out: *mut f32) {
+    assert!(len == 2);
+    assert!(!ptr1.is_null());
+    assert!(!ptr2.is_null());
+    assert!(!out.is_null());   
+    
+    let v1 = unsafe { std::slice::from_raw_parts(ptr1, len) };
+    let v2 = unsafe { std::slice::from_raw_parts(ptr2, len) };
+    
+    let cross =  v1[0]*v2[1] - v1[1]*v2[0];
+
+    unsafe {
+        *out = cross;
+    }
 }
 
 #[no_mangle]
-pub extern "C" fn cross3(v1: [f32; 3], v2: [f32; 3]) -> [f32; 3] {
-    let i = v1[1]*v2[2] - v1[2]*v2[1];
-    let j = v1[2]*v2[0] - v1[0]*v2[2];
-    let k = v1[0]*v2[1] - v1[1]*v2[0];
-    return [i, j, k];
+pub extern "C" fn cross3(ptr1: *const f32, ptr2: *const f32, len: usize, out: *mut f32) {
+    assert!(len == 3);
+    assert!(!ptr1.is_null());
+    assert!(!ptr2.is_null());
+    assert!(!out.is_null());
+
+    let v1 = unsafe { std::slice::from_raw_parts(ptr1, len) };
+    let v2 = unsafe { std::slice::from_raw_parts(ptr2, len) };
+    let out = unsafe { std::slice::from_raw_parts_mut(out, 3) };
+
+    out[0] = v1[1]*v2[2] - v1[2]*v2[1];
+    out[1] = v1[2]*v2[0] - v1[0]*v2[2];
+    out[2] = v1[0]*v2[1] - v1[1]*v2[0];
 }
