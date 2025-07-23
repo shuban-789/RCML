@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include "rcl.h"
 
+float f(float x) {
+    return 1/x;
+}
+
 float square(float x) {
     return x * x;
 }
@@ -57,5 +61,7 @@ int main() {
     cross3(vc3, vc4, 3, cross_prod_3);
     printf("3D vector cross product is <%f, %f, %f>\n", cross_prod_3[0], cross_prod_3[1], cross_prod_3[2]);
 
+    float approx = taylor(2.0f, 2.0f, 2, f);
+    printf("2nd Degree Taylor Series Approximation for 1/x with x = 2, centered at x = 1: %f\n", approx);
     return 0;
 }

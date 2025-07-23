@@ -1,5 +1,3 @@
-use core::f32::NAN;
-
 fn fact(n: i32) -> i32 {
     if n == 0 {
         1
@@ -54,7 +52,7 @@ pub extern "C" fn verify_limit(c: f32, l: f32, f: extern "C" fn(f32) -> f32) -> 
 pub extern "C" fn limit(c: f32, f: extern "C" fn(f32) -> f32) -> f32 {
     let mut h = 1e-2;
     let mut prev_r = 0.0;
-    let mut curr_r = 0.0;
+    let mut curr_r;
     let tolerance = 1e-6;
 
     loop {
@@ -127,6 +125,60 @@ pub extern "C" fn derive(c: f32, f: extern "C" fn(f32) -> f32) -> f32 {
         f32::NAN
     }
 }
+
+// NOTE: this version of nderive is extremely hard coded. As of now, I don't know the math for a dynamic nderive. Until then, the max degree is 5
+#[no_mangle]
+pub extern "C" fn nderive(n: usize, x: f32, h: f32, f: extern "C" fn(f32) -> f32) -> f32 {
+    let h2 = h / 2.0;
+
+    match n {
+        0 => f(x),
+
+        1 => {
+            let d1 = (f(x + h) - f(x - h)) / (2.0 * h);
+            let d2 = (f(x + h2) - f(x - h2)) / (2.0 * h2);
+            (4.0 * d2 - d1) / 3.0
+        }
+
+        2 => {
+            let d1 = (f(x + h) - 2.0 * f(x) + f(x - h)) / (h * h);
+            let d2 = (f(x + h2) - 2.0 * f(x) + f(x - h2)) / (h2 * h2);
+            (4.0 * d2 - d1) / 3.0
+        }
+
+        3 => {
+            let d1 = (f(x + 2.0 * h) - 2.0 * f(x + h) + 2.0 * f(x - h) - f(x - 2.0 * h)) / (2.0 * h.powi(3));
+            let d2 = (f(x + 2.0 * h2) - 2.0 * f(x + h2) + 2.0 * f(x - h2) - f(x - 2.0 * h2)) / (2.0 * h2.powi(3));
+            (4.0 * d2 - d1) / 3.0
+        }
+
+        4 => {
+            let d1 = (-f(x + 2.0 * h) + 16.0 * f(x + h) - 30.0 * f(x) + 16.0 * f(x - h) - f(x - 2.0 * h)) / (12.0 * h.powi(4));
+            let d2 = (-f(x + 2.0 * h2) + 16.0 * f(x + h2) - 30.0 * f(x) + 16.0 * f(x - h2) - f(x - 2.0 * h2)) / (12.0 * h2.powi(4));
+            (4.0 * d2 - d1) / 3.0
+        }
+
+        5 => {
+            let d1 = (-f(x + 3.0 * h) + 12.0 * f(x + 2.0 * h) - 39.0 * f(x + h)
+                + 39.0 * f(x - h) - 12.0 * f(x - 2.0 * h) + f(x - 3.0 * h)) / (6.0 * h.powi(5));
+            let d2 = (-f(x + 3.0 * h2) + 12.0 * f(x + 2.0 * h2) - 39.0 * f(x + h2)
+                + 39.0 * f(x - h2) - 12.0 * f(x - 2.0 * h2) + f(x - 3.0 * h2)) / (6.0 * h2.powi(5));
+            (4.0 * d2 - d1) / 3.0
+        }
+
+        6 => {
+            let d1 = (f(x + 3.0 * h) - 6.0 * f(x + 2.0 * h) + 15.0 * f(x + h)
+                - 20.0 * f(x) + 15.0 * f(x - h) - 6.0 * f(x - 2.0 * h) + f(x - 3.0 * h)) / h.powi(6);
+            let d2 = (f(x + 3.0 * h2) - 6.0 * f(x + 2.0 * h2) + 15.0 * f(x + h2)
+                - 20.0 * f(x) + 15.0 * f(x - h2) - 6.0 * f(x - 2.0 * h2) + f(x - 3.0 * h2)) / h2.powi(6);
+            (4.0 * d2 - d1) / 3.0
+        }
+
+        _ => f32::NAN,
+    }
+}
+
+
 
 #[no_mangle]
 pub extern "C" fn integrate(a: f32, b: f32, f: extern "C" fn(f32) -> f32) -> f32
@@ -219,4 +271,21 @@ pub extern "C" fn cross3(ptr1: *const f32, ptr2: *const f32, len: usize, out: *m
     out[0] = v1[1]*v2[2] - v1[2]*v2[1];
     out[1] = v1[2]*v2[0] - v1[0]*v2[2];
     out[2] = v1[0]*v2[1] - v1[1]*v2[0];
+}
+
+#[no_mangle]
+pub extern "C" fn taylor(a: f32, x: f32, d: i32, f: extern "C" fn(f32) -> f32) -> f32 {
+    let a = a as f64;
+    let x = x as f64;
+    let mut sum = 0.0;
+
+    for i in 0..=d {
+    let i_usize = i as usize;
+        let h = 1e-4_f32;
+        let derivative = nderive(i_usize, a as f32, h, f) as f64;
+        let term = derivative * (x - a).powi(i) / (fact(i_usize as i32) as f64);
+        sum += term;
+    }
+
+    return sum as f32;
 }
