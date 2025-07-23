@@ -168,7 +168,8 @@ pub extern "C" fn dot(ptr1: *const f32, ptr2: *const f32, len: usize, out: *mut 
     assert!((v1.len() == v2.len()) && v1.len() == (len as i32).try_into().unwrap());
 
     let mut dot = 0.0;
-    for i in 0..(v1.len()-1) {
+
+    for i in 0..(v1.len()) {
         dot += v1[i]*v2[i];
     }
 
