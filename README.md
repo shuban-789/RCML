@@ -2,7 +2,7 @@
 
 ## About
 
-The library `rcl` stands for "Rudimentary Calculus Library" and is a standard calculus library. It aims to provide both single variable and multivariable calculus functions, specifically for scientific programs or analysis code written in Rust or C/C++
+`rcl` (Rudimentary Calculus Library) is a simple calculus package which aims to provide both single variable and multivariable calculus functions for programs written in Rust or C/C++
 
 Limits and any limit dependent function will not be perfectly correct but extremely close to the correct value due to the way they are calculated. A standard convention for tolerance may be used in the future. Integration follows Simpson's Rule calculation as of now.
 
