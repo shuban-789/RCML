@@ -1,6 +1,12 @@
 use core::f32::NAN;
 
-type PathFn = extern "C" fn(f32, *mut f32);
+fn fact(n: i32) -> i32 {
+    if n == 0 {
+        1
+    } else {
+        n * fact(n - 1)
+    }
+}
 
 #[no_mangle]
 pub extern "C" fn path_x(t: f32, out: *mut f32) {
@@ -101,7 +107,8 @@ pub extern "C" fn limit2(
             return f32::NAN;
         }
     }
-    limits[0]
+    
+    return limits[0];
 }
 
 #[no_mangle]
@@ -120,8 +127,6 @@ pub extern "C" fn derive(c: f32, f: extern "C" fn(f32) -> f32) -> f32 {
         f32::NAN
     }
 }
-
-
 
 #[no_mangle]
 pub extern "C" fn integrate(a: f32, b: f32, f: extern "C" fn(f32) -> f32) -> f32
