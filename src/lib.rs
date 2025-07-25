@@ -347,3 +347,16 @@ pub extern "C" fn project(ptr1: *const f32, ptr2: *const f32, len: usize, proj: 
         proj[i] = vec_scalar_prod * pv[i];
     }
 }
+
+#[no_mangle]
+pub extern "C" fn curvature(x: f32, y: f32, f: extern "C" fn(f32) -> f32) -> f32 {
+    assert!(y == f(x));
+    let first = derive(x, f);
+    let second = nderive(2, x, 1e-4_f32, f);
+    let k = {
+        let numerator = second.abs();
+        let denominator: f32 = 1.0 + first.powf(2.0);
+        numerator / denominator.powf(1.5)
+    };
+    return k;
+}
