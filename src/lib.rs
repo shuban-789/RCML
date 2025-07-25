@@ -237,16 +237,16 @@ pub extern "C" fn dot(ptr1: *const f32, ptr2: *const f32, len: usize, out: *mut 
 
 
 #[no_mangle] 
-pub extern "C" fn cross2(ptr1: *const f32, ptr2: *const f32, len: usize, out: *mut f32) {
-    assert!(len == 2);
+pub extern "C" fn cross2(ptr1: *const f32, ptr2: *const f32, out: *mut f32) {
     assert!(!ptr1.is_null());
     assert!(!ptr2.is_null());
     assert!(!out.is_null());   
     
-    let v1 = unsafe { std::slice::from_raw_parts(ptr1, len) };
-    let v2 = unsafe { std::slice::from_raw_parts(ptr2, len) };
+    let v1 = unsafe { std::slice::from_raw_parts(ptr1, 2) };
+    let v2 = unsafe { std::slice::from_raw_parts(ptr2, 2) };
 
     assert!(v1.len() == v2.len());
+    assert!(v1.len() == 2);
     
     let cross =  v1[0]*v2[1] - v1[1]*v2[0];
 
@@ -256,17 +256,17 @@ pub extern "C" fn cross2(ptr1: *const f32, ptr2: *const f32, len: usize, out: *m
 }
 
 #[no_mangle]
-pub extern "C" fn cross3(ptr1: *const f32, ptr2: *const f32, len: usize, out: *mut f32) {
-    assert!(len == 3);
+pub extern "C" fn cross3(ptr1: *const f32, ptr2: *const f32, out: *mut f32) {
     assert!(!ptr1.is_null());
     assert!(!ptr2.is_null());
     assert!(!out.is_null());
 
-    let v1 = unsafe { std::slice::from_raw_parts(ptr1, len) };
-    let v2 = unsafe { std::slice::from_raw_parts(ptr2, len) };
+    let v1 = unsafe { std::slice::from_raw_parts(ptr1, 3) };
+    let v2 = unsafe { std::slice::from_raw_parts(ptr2, 3) };
     let out = unsafe { std::slice::from_raw_parts_mut(out, 3) };
 
     assert!(v1.len() == v2.len());
+    assert!(v1.len() == 3);
 
     out[0] = v1[1]*v2[2] - v1[2]*v2[1];
     out[1] = v1[2]*v2[0] - v1[0]*v2[2];
@@ -288,4 +288,28 @@ pub extern "C" fn taylor(a: f32, x: f32, d: i32, f: extern "C" fn(f32) -> f32) -
     }
 
     return sum as f32;
+}
+
+#[no_mangle]
+pub extern "C" fn project(ptr1: *const f32, ptr2: *const f32, len: usize, proj: *mut f32) {
+    assert!(!ptr1.is_null());
+    assert!(!ptr2.is_null());
+    assert!(!proj.is_null());
+
+    let pv = unsafe { std::slice::from_raw_parts(ptr1, len) };
+    let proj = unsafe { std::slice::from_raw_parts_mut(proj, len) };
+
+    let pv_dot_tv_ptr: *mut f32 = &mut 0.0;
+    let pv_dot_pv_ptr: *mut f32 = &mut 0.0;
+    dot(ptr1, ptr2, len, pv_dot_tv_ptr);
+    dot(ptr1, ptr1, len, pv_dot_pv_ptr);
+
+    let pv_dot_tv: f32 = unsafe { *pv_dot_tv_ptr };
+    let pv_dot_pv: f32 = unsafe { *pv_dot_pv_ptr };
+
+    let vec_scalar_prod: f32 = pv_dot_tv / pv_dot_pv;
+
+    for i in 0..len {
+        proj[i] = vec_scalar_prod * pv[i];
+    }
 }
