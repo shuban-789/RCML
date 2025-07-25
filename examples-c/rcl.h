@@ -21,10 +21,12 @@ float limit2(
     void (**paths)(float, float*),
     unsigned long num_paths
 );
+float taylor(float a, float x, int d, float (*f)(float));
+void addvec(const float* ptr1, const float* ptr2, size_t len, float* out);
+void subvec(const float* ptr1, const float* ptr2, size_t len, float* out);
 void dot(const float* ptr1, const float* ptr2, size_t len, float* out);
 void cross2(const float* ptr1, const float* ptr2, float* out);
 void cross3(const float* ptr1, const float* ptr2, float* out);
-float taylor(float a, float x, int d, float (*f)(float));
 void project(const float* ptr1, const float* ptr2, size_t len, float* proj);
 
 #ifdef __cplusplus

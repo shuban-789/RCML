@@ -214,6 +214,57 @@ pub extern "C" fn euler(x_init: f32, y_init: f32, x_final: f32, step: f32, d: ex
 }
 
 #[no_mangle]
+pub extern "C" fn taylor(a: f32, x: f32, d: i32, f: extern "C" fn(f32) -> f32) -> f32 {
+    let a = a as f64;
+    let x = x as f64;
+    let mut sum = 0.0;
+
+    for i in 0..=d {
+    let i_usize = i as usize;
+        let h = 1e-4_f32;
+        let derivative = nderive(i_usize, a as f32, h, f) as f64;
+        let term = derivative * (x - a).powi(i) / (fact(i_usize as i32) as f64);
+        sum += term;
+    }
+
+    return sum as f32;
+}
+
+#[no_mangle]
+pub extern "C" fn addvec(ptr1: *const f32, ptr2: *const f32, len: usize, out: *mut f32) {
+    assert!(!ptr1.is_null());
+    assert!(!ptr2.is_null());
+    assert!(!out.is_null());
+
+    let v1 = unsafe { std::slice::from_raw_parts(ptr1, len) };
+    let v2 = unsafe { std::slice::from_raw_parts(ptr2, len) };
+    let out = unsafe { std::slice::from_raw_parts_mut(out, len) };
+
+    assert!(v1.len() == v2.len());
+
+    for i in 0..len {
+        out[i] = v1[i] + v2[i];
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn subvec(ptr1: *const f32, ptr2: *const f32, len: usize, out: *mut f32) {
+    assert!(!ptr1.is_null());
+    assert!(!ptr2.is_null());
+    assert!(!out.is_null());
+
+    let v1 = unsafe { std::slice::from_raw_parts(ptr1, len) };
+    let v2 = unsafe { std::slice::from_raw_parts(ptr2, len) };
+    let out = unsafe { std::slice::from_raw_parts_mut(out, len) };
+
+    assert!(v1.len() == v2.len());
+
+    for i in 0..len {
+        out[i] = v1[i] - v2[i];
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn dot(ptr1: *const f32, ptr2: *const f32, len: usize, out: *mut f32) {
     assert!(!ptr1.is_null());
     assert!(!ptr2.is_null());
@@ -271,23 +322,6 @@ pub extern "C" fn cross3(ptr1: *const f32, ptr2: *const f32, out: *mut f32) {
     out[0] = v1[1]*v2[2] - v1[2]*v2[1];
     out[1] = v1[2]*v2[0] - v1[0]*v2[2];
     out[2] = v1[0]*v2[1] - v1[1]*v2[0];
-}
-
-#[no_mangle]
-pub extern "C" fn taylor(a: f32, x: f32, d: i32, f: extern "C" fn(f32) -> f32) -> f32 {
-    let a = a as f64;
-    let x = x as f64;
-    let mut sum = 0.0;
-
-    for i in 0..=d {
-    let i_usize = i as usize;
-        let h = 1e-4_f32;
-        let derivative = nderive(i_usize, a as f32, h, f) as f64;
-        let term = derivative * (x - a).powi(i) / (fact(i_usize as i32) as f64);
-        sum += term;
-    }
-
-    return sum as f32;
 }
 
 #[no_mangle]

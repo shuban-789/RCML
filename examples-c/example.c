@@ -37,6 +37,18 @@ int main() {
     float limit = limit2(fxy, 0.0f, 0.0f, paths, 2);
     printf("Limit of fxy as (x,y) -> (0,0) = %f\n", limit);
 
+    float approx = taylor(2.0f, 2.0f, 2, f);
+    printf("2nd Degree Taylor Series Approximation for 1/x with x = 2, centered at x = 1: %f\n", approx);
+
+    float vec1[] = {5.0, 4.0, 3.0};
+    float vec2[] = {3.0, 2.0, 1.0};
+    float sum_vec[3];
+    addvec(vec1, vec2, 3, sum_vec);
+    printf("<5.0, 4.0, 3.0> + <3.0, 2.0, 1.0> = <%f, %f, %f>\n", sum_vec[0], sum_vec[1], sum_vec[2]);
+
+    subvec(vec1, vec2, 3, sum_vec);
+    printf("<5.0, 4.0, 3.0> - <3.0, 2.0, 1.0> = <%f, %f, %f>\n", sum_vec[0], sum_vec[1], sum_vec[2]);
+
     float vd1[] = {1.0, 2.0};
     float vd2[] = {3.0, 4.0};
     float dot_prod_2;
@@ -60,9 +72,6 @@ int main() {
     float cross_prod_3[3];
     cross3(vc3, vc4, cross_prod_3);
     printf("3D vector cross product is <%f, %f, %f>\n", cross_prod_3[0], cross_prod_3[1], cross_prod_3[2]);
-
-    float approx = taylor(2.0f, 2.0f, 2, f);
-    printf("2nd Degree Taylor Series Approximation for 1/x with x = 2, centered at x = 1: %f\n", approx);
 
     float projected_vec[] = {7.0, 14.0, 21.0};
     float target_vec[] = {4.0, 5.0, 6.0};
