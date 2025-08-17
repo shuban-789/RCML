@@ -1,5 +1,5 @@
-C_LIB       = target/release/librcl.so
-LIB_OUT     = lib/librcl.so
+C_LIB       = target/release/librcml.so
+LIB_OUT     = lib/librcml.so
 C_DIR       = examples-c
 RS_DIR      = examples-rs
 

@@ -132,7 +132,7 @@ pub extern "C" fn nderive(n: usize, x: f32, h: f32, f: extern "C" fn(f32) -> f32
     let h2 = h / 2.0;
 
     match n {
-        0 => f(x),
+        0 => { f(x) }
 
         1 => {
             let d1 = (f(x + h) - f(x - h)) / (2.0 * h);
@@ -174,7 +174,7 @@ pub extern "C" fn nderive(n: usize, x: f32, h: f32, f: extern "C" fn(f32) -> f32
             (4.0 * d2 - d1) / 3.0
         }
 
-        _ => f32::NAN,
+        _ => { f32::NAN }
     }
 }
 
