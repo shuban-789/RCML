@@ -360,3 +360,47 @@ pub extern "C" fn curvature(x: f32, y: f32, f: extern "C" fn(f32) -> f32) -> f32
     };
     return k;
 }
+
+#[no_mangle]
+pub extern "C" fn gcd(a: i32, b: i32) -> i32 {
+    // Euclidean Algorithm
+    if a == 0 {
+        return b;
+    }
+
+    if b == 0 {
+        return a;
+    }
+
+    let r = a % b;
+
+    return gcd(b, r);
+}
+
+#[no_mangle]
+pub extern "C" fn egcd(p: i32, q: i32, res: *mut i32) {
+    // Extended Euclidean Algorithm
+    assert!(!res.is_null());
+    let res = unsafe { std::slice::from_raw_parts_mut(res, 3) };
+
+    let mut s = 0;
+    let mut t = 1;
+    let mut old_s = 1;
+    let mut old_t = 0;
+    let mut r  = p;
+    let mut old_r = q;
+
+    while r != 0 {
+        let quo = old_r / r;
+        old_r = r;
+        r = old_r - quo * r;
+        old_s = s;
+        s = old_s - quo * s;
+        old_t = t;
+        t = old_t - quo * t;
+    }
+
+    res[0] = old_r; // gcd
+    res[1] = old_t; // u
+    res[2] = old_s; // v
+}
